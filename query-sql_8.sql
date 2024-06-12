@@ -10,8 +10,9 @@ CREATE TABLE employee (
     job_title varchar(50) NULL,
     salary decimal(10, 2) NULL,
     department varchar(50) NULL
-)
+);
 
+-- STORED PROSEDURE
 -- 1.Buatlah SP dengan nama sp_insertEmployees pada tabel employees dengan data sebagai berikut,
 -- Dan panggil nama sp_insertEmployees untuk memasukan semua data tersebut diatas
 DELIMITER $$;
@@ -55,3 +56,108 @@ BEGIN
 END $$;
 DELIMITER ;
 CALL sp_tampilDept_5209();
+
+-- 4. Buat SP dengan nama sp_updateEmployees untuk mengubah data pada tabel employees berdasarkan id dan data yang akan diubah adalah kolom job_title. Dan Panggil SP tersebut untuk mengubah job_title menjadi Programmer berdasarkan id=10. Dan jika ditampilkan maka data akan berubah.
+DELIMITER $$;
+DROP PROCEDURE IF EXISTS sp_updateEmployees_5209;
+CREATE PROCEDURE sp_updateEmployees_5209(id_ int)
+BEGIN
+    UPDATE employee e SET job_title = "Programmer" WHERE e.id = id_;
+END $$;
+DELIMITER ;
+CALL sp_updateEmployees_5209(10);
+
+-- 5. Buat SP untuk menghapus data dengan nama sp_hapusEmployees berdasar job_title. Dan lakukan pemanggilan SP untuk menghapus data yang job_title adalah Assistant.
+DELIMITER $$;
+DROP PROCEDURE IF EXISTS sp_hapusEmployees_5209;
+CREATE PROCEDURE sp_hapusEmployees_5209()
+BEGIN
+    DELETE FROM employee WHERE job_title = 'Assistant';
+END $$;
+DELIMITER ;
+CALL sp_hapusEmployees_5209();
+
+-- 6. Buatlah SP untuk menghapus data employees yang salarynya dibawah 3000, dengan nama SP_hapus_Salary. Jika dilakukan pemanggilan maka outputnya sebagai berikut
+DELIMITER $$;
+DROP PROCEDURE IF EXISTS SP_hapus_Salary_5209;
+CREATE PROCEDURE SP_hapus_Salary_5209()
+BEGIN
+    DELETE FROM employee WHERE salary < 3000.00;
+END $$;
+DELIMITER ;
+CALL SP_hapus_Salary_5209();
+
+-- 7. Buatlah stored procedure dengan nama SP_tampil_Fname_Dept untuk menampilkan fist_name dan department berdasarkan id pada table employees dengan melibatkan parameter IN dan OUT.
+DELIMITER $$;
+DROP PROCEDURE IF EXISTS SP_tampil_Fname_Dept_5209;
+CREATE PROCEDURE SP_tampil_Fname_Dept_5209(IN id_ INT, OUT first_name_ VARCHAR(50), OUT department_ VARCHAR(50))
+BEGIN
+    SELECT first_name, department INTO first_name_, department_ FROM employee WHERE id = id_;
+END $$;
+DELIMITER ;
+CALL SP_tampil_Fname_Dept_5209(2, @first_name, @department);
+SELECT @first_name, @department;
+
+-- 8 Tampilkan semua SP yang dibuat dalam database ini dengan menggunakan perintah show procedure status. Dan tampilkan hasilnya.
+SHOW PROCEDURE STATUS WHERE Db = 'week_10';
+
+-- FUNCTION
+-- 1. Buatlah stored function dengan insert_employees untuk menginputkan data pada table employees. Panggil nama fungsi input tersebut untuk memasukan data minimal 2 record teman anda yang sebelah kanan dan kiri.
+DELIMITER $$;
+DROP FUNCTION IF EXISTS insert_employees_5209;
+CREATE FUNCTION insert_employees_5209(first_name varchar(50), last_name varchar(50), email varchar(100), phone_number varchar(20), hire_date_date date, job_title varchar(50), salary decimal(10,2), department varchar(50))
+RETURNS INT
+BEGIN
+    INSERT INTO `employee`(`first_name`, `last_name`, `email`, `phone_number`, `hire_date`, `job_title`, `salary`, `department`) VALUES (first_name, last_name, email, phone_number, hire_date, job_title, salary, department);
+    RETURN LAST_INSERT_ID();
+END $$;
+DELIMITER ;
+
+SELECT insert_employees_5209('Rizal', 'Arfiyan', 'rizalarfiyan@gmail.com', '08123456789', '2021-11-01', 'Developer', 5000.00, 'Finance');
+SELECT insert_employees_5209('Wisnu', 'Dewa', 'wisnudewa@gmail.com', '08123456789', '2021-11-01', 'Designer', 5000.00, 'Finance');
+
+-- 2. Buatlah stored function dengan nama hapus_employees untuk menghapus data yang nama department nya adalah Finance. Panggil nama fungsi tersebut dan jika berhasil maka tampilan datanya akan sebagai berikut.
+DELIMITER $$;
+DROP FUNCTION IF EXISTS hapus_employees_5209;
+CREATE FUNCTION hapus_employees_5209()
+RETURNS INT
+BEGIN
+    DELETE FROM employee WHERE department = 'Finance';
+    RETURN ROW_COUNT();
+END $$;
+DELIMITER ;
+SELECT hapus_employees_5209();
+
+-- 3. Buatlah stored function dengan SPhapus_function untuk menampilkan data pada table employees yang salary nya lebih besar atau sama dengan 4000. Panggil SPhapus_function maka hasilnya akan sebagai berikut.
+DELIMITER $$;
+DROP FUNCTION IF EXISTS SPhapus_function_5209;
+CREATE FUNCTION SPhapus_function_5209()
+RETURNS INT
+BEGIN
+    SELECT * FROM employee WHERE salary>=4000.00;
+    RETURN ROW_COUNT();
+END $$;
+DELIMITER ;
+SELECT SPhapus_function_5209();
+
+-- 4. Buatlah stored function untuk menentukan level gaji berdasarkan gaji yang diterima. Jika gajinya diatas 4000 adalah Tinggi, gaji dengan nilai lebih besar atau sama dengan 3500 dan lebih kecil atau sama dengan 4000 adalah Sedang. Kemudian jika gaji yang diperoleh dibawah 3500 maka Rendah.
+DELIMITER $$;
+DROP FUNCTION IF EXISTS level_gaji_5209;
+CREATE FUNCTION level_gaji_5209(salary decimal(10,2))
+RETURNS VARCHAR(50)
+BEGIN
+    DECLARE level VARCHAR(50);
+    IF salary > 4000.00 THEN
+        SET level = 'Tinggi';
+    ELSEIF salary >= 3500.00 AND salary <= 4000.00 THEN
+        SET level = 'Sedang';
+    ELSE
+        SET level = 'Rendah';
+    END IF;
+    RETURN level;
+END $$;
+DELIMITER ;
+SELECT first_name, last_name, level_gaji_5209(salary) FROM employee;
+
+-- 5. Tampilkan semua stored Function yang dibuat dengan perintah show FUNCTION STATUS
+SHOW FUNCTION STATUS WHERE Db = 'week_10';
