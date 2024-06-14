@@ -68,4 +68,4 @@ BEGIN
     UPDATE barang SET stok = stok - NEW.jumlah WHERE id_barang = NEW.id_barang;
 END$$;
 DELIMITER ;
-INSERT INTO penjualan (id_barang, jumlah, tanggal_penjualan, total_harga) VALUES (1, 5, '2021-11-01', 25000);
+INSERT INTO penjualan (id_barang, jumlah, tanggal_penjualan, total_harga) VALUES (1, 15, '2021-11-01', 25000);
